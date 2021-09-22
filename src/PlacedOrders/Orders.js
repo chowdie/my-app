@@ -60,25 +60,26 @@ export default function Orders() {
   const database = firebase.database().ref('Placed Orders');
   const fetchData = () =>{
       const dbPlacedRef = firebase.database().ref('Placed Orders')
-      setData([])
+
       dbPlacedRef.on('value', async snapshot => {
          await snapshot.forEach((childSub) => {
+
           const dbValue = childSub.val()
           dbValue.key = childSub.key;
 
           if(data.indexOf(dbValue) == -1){data.push(dbValue)}
 
+
+
         });
-      setDataReady(true);
-      setData(data)
+        setDataReady(true);
+        setData(data)
     })
 
   }
 
   useEffect(() => {
     fetchData();
-
-
   }, [])
 
   const handleClickOpenNewOrder = () => {
@@ -100,17 +101,15 @@ export default function Orders() {
 
   };
 
-
   return (
     <div>
-{ dataReady==true ? (
+{ dataReady==true? (
 
     <React.Fragment>
       <Title>Placed Orders</Title>
       <Table size="medium" >
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
             <TableCell><b>Date</b></TableCell>
             <TableCell><b>Name</b></TableCell>
             <TableCell><b>Department</b></TableCell>
@@ -124,6 +123,7 @@ export default function Orders() {
         <TableBody>
           {
             data.map((row ) => (
+
             <TableRow key={row.key}>
               <TableCell>{row.datePlacedOrder}</TableCell>
               <TableCell>{row.namePlacedOrder}</TableCell>
@@ -142,18 +142,18 @@ export default function Orders() {
                                   }}>View</Button>
               </TableCell>
             </TableRow>
+
           ))
         }
         </TableBody>
       </Table>
       <br/>
 
-      <Button color='primary' variant="contained"> Accept Orders </Button>
       <br/> <br/>
       <Fab color="primary" aria-label="add" style={{position:'fixed', right: 50 , bottom: 50, left: 'auto', top:'auto'}} onClick={handleClickOpenNewOrder}>
         <AddIcon />
       </Fab>
-      <SimpleDialogNewOrder selectedValueNewOrder={selectedValueNewOrder} open={open} onClose={handleCloseNewOrder} />
+      <SimpleDialogNewOrder selectedValueNewOrder={selectedValueNewOrder} open={open} onClose={handleCloseNewOrder} dataReady={dataReady} onDataReadyChange={setDataReady}/>
       <SimpleDialogViewOrder selectedValueViewOrder={selectedValueViewOrder} openViewOrder={openViewOrder} onClose={handleCloseViewOrder} currentRowNamePlacedOrder={currentRowNamePlacedOrder}
                               currentRowDatePlacedOrder={currentRowDatePlacedOrder} currentRowDepartmentPlacedOrder={currentRowDepartmentPlacedOrder} currentRowProductPlacedOrder={currentRowProductPlacedOrder}
                               currentRowPricePlacedOrder={currentRowPricePlacedOrder} currentRowAditionalPlacedOrder={currentRowAditionalPlacedOrder} currentRowKeyPlacedOrder={currentRowKeyPlacedOrder}/>

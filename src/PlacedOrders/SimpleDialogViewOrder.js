@@ -18,11 +18,23 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import ListItem from '@material-ui/core/ListItem';
+import Avatar from '@material-ui/core/Avatar';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import IconButton from '@material-ui/core/IconButton';
+import ListItemText from '@material-ui/core/ListItemText';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogActions from '@material-ui/core/DialogActions'
+import Slide from '@material-ui/core/Slide';
+
 import firebase from '../Firebase/fire'
 import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
+import FolderIcon from '@material-ui/icons/Folder';
+import DeleteIcon from '@material-ui/icons/Delete';
 import TextField from '@material-ui/core/TextField'
 import Database from '../Database/Database'
+
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
@@ -30,9 +42,64 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+function AlertDialogSlide(props) {
+
+  const classes = useStyles();
+  var { onClose, selectedValueAlert, openAlert,setOpenAlert, file} = props;
+
+
+
+  const handleCloseAlert = () => {
+    onClose(selectedValueAlert);
+
+  };
+
+  const handleCloseAlertYes = async () => {
+    onClose(selectedValueAlert);
+    await file.delete()
+
+  };
+
+  const handleClickOpenAlert = () => {
+  setOpenAlert(true);
+
+};
+
+
+  return (
+    <div>
+      <Dialog
+        open={handleClickOpenAlert}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleCloseAlert}
+        aria-describedby="alert-dialog-slide-description"
+        open={openAlert}
+      >
+        <DialogTitle>{"Are you sure you want to delete it?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-slide-description">
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseAlert}>No</Button>
+          <Button onClick={handleCloseAlertYes}>Yes</Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  );
+}
+
+
 export default function SimpleDialogViewOrder(props) {
 
   const db = firebase.database();
+  const storage = firebase.storage();
+
   const classes = useStyles();
   var { onClose, selectedValueViewOrder, openViewOrder, currentRowNamePlacedOrder, currentRowDatePlacedOrder, currentRowPricePlacedOrder,
             currentRowProductPlacedOrder, currentRowAditionalPlacedOrder, currentRowDepartmentPlacedOrder, currentRowKeyPlacedOrder} = props;
@@ -43,12 +110,43 @@ export default function SimpleDialogViewOrder(props) {
   const productAcceptedOrder = currentRowProductPlacedOrder
   const priceAcceptedOrder = currentRowPricePlacedOrder
   const aditionalAcceptedOrder = currentRowAditionalPlacedOrder
+  const pdfKey = currentRowKeyPlacedOrder
+  const [extractingFiles, setExtractingFiles] = React.useState([]);
+  const [pdfFile, setPdfFile] = useState([]);
+  const [currentFile, setCurrentFile] = useState('')
+
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const [selectedValueAlert, setSelectedValueAlert] = React.useState('');
+
   var key = currentRowKeyPlacedOrder
 
+  useEffect(() => {
+      var files = [];
+      storage.ref("pdf").child(pdfKey).listAll().then( folder => {
 
-  const handleCloseViewOrder = () => {
+        folder.items.forEach( (file) => {
+          files.push(file);
+        });
+        setExtractingFiles(files);
+  });
+
+});
+
+const uploadPdfFile = async(key) => {
+  if(pdfFile == null)
+    return;
+  const promises = [];
+  const uploadPromises = pdfFile.forEach((file) => {
+    promises.push(storage.ref(`pdf/${key}/${file.name}`).put(file));
+  });
+
+  await Promise.all(promises).then(tasks => {window.location.reload();});
+}
+
+  const handleCloseViewOrder = async () => {
     onClose(selectedValueViewOrder)
    db.ref('Placed Orders').child(currentRowKeyPlacedOrder).update({aditionalPlacedOrder: currentRowAditionalPlacedOrder});
+   await uploadPdfFile(pdfKey)
    window.location.reload()
   };
 
@@ -67,13 +165,22 @@ export default function SimpleDialogViewOrder(props) {
       nameAcceptedOrder,
       priceAcceptedOrder,
       productAcceptedOrder,
+      pdfKey
     })
 
     db.ref('Placed Orders').child(currentRowKeyPlacedOrder).remove();
     window.location.reload()
 
   };
+  const handleClickOpenAlert = () => {
+    setOpenAlert(true);
 
+  };
+  const handleCloseAlert = (value) => {
+    setOpenAlert(false);
+    setSelectedValueAlert(value);
+
+  };
 
 
   return (
@@ -138,8 +245,58 @@ export default function SimpleDialogViewOrder(props) {
                 </ListItem>
 
 
-                <Button color='primary' variant='contained' type='submit' onClick={handleAcceptViewOrder}>Accept Order
-                </Button>
+
+                <ListItem /> <ListItem/> <ListItem/>
+
+            <div>
+            {
+              extractingFiles.map( file =>(
+               <Button>
+                 <ListItemAvatar>
+                   <Avatar>
+                     <FolderIcon />
+                   </Avatar>
+                 </ListItemAvatar>
+                  <Button onClick={() => {file.getDownloadURL().then(url => {window.open(url)})}}>{file.name} </Button>
+
+                 <IconButton edge="end" aria-label="delete">
+                   <DeleteIcon onClick={() => {handleClickOpenAlert();
+                                                setCurrentFile(file) }} />
+                    <AlertDialogSlide onClose={handleCloseAlert} file={currentFile} openAlert={openAlert}  setOpenAlert={setOpenAlert} selectedValueAlert={selectedValueAlert}/>
+                 </IconButton>
+
+              </Button>
+            ))
+            }
+            </div>
+            <ListItem/><ListItem/>
+            <ListItem>
+
+            <input id="contained-button-file" type="file" name="file" style={{display:'none'}} multiple onChange = { (e) => {
+              let pdfs = [];
+              for(var i = 0; i < e.target.files.length; i++)
+              {
+                pdfs.push(e.target.files[i]);
+              }
+              setPdfFile(pdfs);
+            }}/>
+            <label htmlFor="contained-button-file">
+            <Button color="primary" component="span">
+                Upload
+            </Button>
+            {
+            pdfFile.map((file, i) => {
+
+              return (<p key = {file.name}>{file.name}</p>)
+            })
+            }
+            </label>
+            </ListItem>
+
+
+              <ListItem /> <ListItem/> <ListItem/> <ListItem /> <ListItem/> <ListItem/>
+            <Button color='primary' variant='contained' type='submit' onClick={handleAcceptViewOrder}>Accept Order
+            </Button>
 
       </List>
     </Dialog>

@@ -55,6 +55,7 @@ export default function Orders() {
   const [currentRowPriceAcceptedOrder, setCurrentRowPriceAcceptedOrder] = React.useState('');
   const [currentRowAditionalAcceptedOrder, setCurrentRowAditionalAcceptedOrder] = React.useState('');
   const [currentRowKeyAcceptedOrder, setCurrentRowKeyAcceptedOrder] = React.useState('');
+  const [pdfKey, setPdfKey] = React.useState('');
 
   const database = firebase.database().ref('Accepted Orders');
   const fetchData = () =>{
@@ -103,7 +104,6 @@ export default function Orders() {
       <Table size="medium" >
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
             <TableCell><b>Date</b></TableCell>
             <TableCell><b>Name</b></TableCell>
             <TableCell><b>Department</b></TableCell>
@@ -132,6 +132,7 @@ export default function Orders() {
                 setCurrentRowAditionalAcceptedOrder(row.aditionalAcceptedOrder)
                 setCurrentRowDepartmentAcceptedOrder(row.departmentAcceptedOrder)
                 setCurrentRowKeyAcceptedOrder(row.key)
+                setPdfKey(row.pdfKey)
                                   }}>View</Button>
               </TableCell>
             </TableRow>
@@ -141,13 +142,13 @@ export default function Orders() {
       </Table>
       <br/>
 
-      <Button color='primary' variant="contained"> Accept Orders </Button>
+
       <br/> <br/>
 
 
       <SimpleDialogViewOrder selectedValueViewOrder={selectedValueViewOrder} openViewOrder={openViewOrder} onClose={handleCloseViewOrder} currentRowNameAcceptedOrder={currentRowNameAcceptedOrder}
                               currentRowDateAcceptedOrder={currentRowDateAcceptedOrder} currentRowDepartmentAcceptedOrder={currentRowDepartmentAcceptedOrder} currentRowProductAcceptedOrder={currentRowProductAcceptedOrder}
-                              currentRowPriceAcceptedOrder={currentRowPriceAcceptedOrder} currentRowAditionalAcceptedOrder={currentRowAditionalAcceptedOrder} currentRowKeyAcceptedOrder={currentRowKeyAcceptedOrder}/>
+                              currentRowPriceAcceptedOrder={currentRowPriceAcceptedOrder} currentRowAditionalAcceptedOrder={currentRowAditionalAcceptedOrder} currentRowKeyAcceptedOrder={currentRowKeyAcceptedOrder} pdfKey={pdfKey}/>
     </React.Fragment>
 ) : (
 

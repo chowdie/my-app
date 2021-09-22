@@ -23,6 +23,8 @@ import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
 import TextField from '@material-ui/core/TextField'
 import Database from '../Database/Database'
+import {dataReady, setDataReady} from './Orders.js'
+
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
@@ -34,11 +36,9 @@ export default function SimpleDialogNewOrder(props) {
 
   const db = firebase.database();
   const classes = useStyles();
-  const { onClose, selectedValueNewOrder, open } = props;
+  const { onClose, selectedValueNewOrder, open, dataReady, onDataReadyChange } = props;
 
   const storage = firebase.storage();
-
-
 
 
   const handleCloseNewOrder = async () => {
@@ -49,6 +49,8 @@ export default function SimpleDialogNewOrder(props) {
         productPlacedOrder != "productPlacedOrder" && pricePlacedOrder != "pricePlacedOrder" && pdfFile != null){
     const newOrder = db.ref('Placed Orders')
     const newOrderPlaced = newOrder.push();
+
+    setKey(newOrderPlaced.key);
     newOrderPlaced.set({
       key,
       datePlacedOrder,
@@ -58,17 +60,27 @@ export default function SimpleDialogNewOrder(props) {
       pricePlacedOrder,
       aditionalPlacedOrder
     })
-    uploadPdfFile();
-    window.location.reload();
+
+    onDataReadyChange(false);
+    await uploadPdfFile(newOrderPlaced.key);
+
+
 }
+
 
 
   };
 
-  const uploadPdfFile = () => {
+  const uploadPdfFile = async(key) => {
+    console.log(pdfFile);
     if(pdfFile == null)
       return;
-    storage.ref(`pdf/${key}/${pdfFile.name}`).put(pdfFile);
+    const promises = [];
+    const uploadPromises = pdfFile.forEach((file) => {
+      promises.push(storage.ref(`pdf/${key}/${file.name}`).put(file));
+    });
+
+    await Promise.all(promises).then(tasks => {window.location.reload(); onDataReadyChange(true)});
   }
 
 
@@ -77,13 +89,13 @@ export default function SimpleDialogNewOrder(props) {
   const [departmentPlacedOrder, setDepartmentPlacedOrder] = useState('departmentPlacedOrder')
   const [productPlacedOrder, setProductPlacedOrder] = useState('productPlacedOrder')
   const [pricePlacedOrder, setPricePlacedOrder] = useState('pricePlacedOrder')
-  const [aditionalPlacedOrder, setAditionalPlacedOrder] = useState('aditionalPlacedOrder')
+  const [aditionalPlacedOrder, setAditionalPlacedOrder] = useState('')
   const [key, setKey] = useState('key');
-  const [pdfFile, setPdfFile] = useState('');
+  const [pdfFile, setPdfFile] = useState([]);
 
 
   return (
-    <form  >
+    <form fullWidth={true}>
     <Dialog onClose={handleCloseNewOrder} aria-labelledby="simple-dialog-title" open={open} >
       <DialogTitle id="simple-dialog-title"><h1>Place new order</h1></DialogTitle>
       <List>
@@ -112,11 +124,19 @@ export default function SimpleDialogNewOrder(props) {
                   <Select onChange={(e) => setDepartmentPlacedOrder(e.target.value)}
                     labelId="demo-simple-select-placeholder-label-label"
                     id="demo-simple-select-placeholder-label"
-                    name='departmentPlacedOrder'
-                  >
-                    <MenuItem value={'Powertrain'}>Powertrain</MenuItem>
-                    <MenuItem value={'Electronics'}>Electronics</MenuItem>
+                    name='departmentPlacedOrder'  >
+
                     <MenuItem value={'Body'}>Body</MenuItem>
+                    <MenuItem value={'Braking'}>Braking</MenuItem>
+                    <MenuItem value={'Chasis'}>Chasis</MenuItem>
+                    <MenuItem value={'Electronics'}>Electronics</MenuItem>
+                    <MenuItem value={'Finances and Marketing'}>Finances and Marketing</MenuItem>
+                    <MenuItem value={'Powertrain'}>Powertrain</MenuItem>
+                    <MenuItem value={'Simulations'}>Simulations</MenuItem>
+                    <MenuItem value={'Steering'}>Steering</MenuItem>
+                    <MenuItem value={'Suspension'}>Suspension</MenuItem>
+
+
                   </Select>
 
                 </ListItem>
@@ -151,10 +171,31 @@ export default function SimpleDialogNewOrder(props) {
 
                 </ListItem>
 
+                <ListItem/><ListItem/>
                 <ListItem>
-          			<input type="file" name="file" multiple onChange = { (e) => {setPdfFile(e.target.files[0])}  }/>
+
+                <input id="contained-button-file" type="file" name="file" style={{display:'none'}} multiple onChange = { (e) => {
+                  let pdfs = [];
+                  for(var i = 0; i < e.target.files.length; i++)
+                  {
+                    pdfs.push(e.target.files[i]);
+                  }
+                  setPdfFile(pdfs);
+                }}/>
+                <label htmlFor="contained-button-file">
+                <Button color="primary" component="span">
+                    Upload
+                </Button>
+                {
+                pdfFile.map((file, i) => {
+
+                  return (<p key = {file.name}>{file.name}</p>)
+                })
+                }
+                </label>
 		            </ListItem>
 
+                <ListItem/><ListItem/><ListItem/><ListItem/><ListItem/><ListItem/>
 
                 <Button color='primary' variant='contained' type='submit' onClick={handleCloseNewOrder}>Place Order
                 </Button>

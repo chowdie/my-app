@@ -55,6 +55,7 @@ export default function Orders() {
   const [currentRowPriceFinishedOrder, setCurrentRowPriceFinishedOrder] = React.useState('');
   const [currentRowAditionalFinishedOrder, setCurrentRowAditionalFinishedOrder] = React.useState('');
   const [currentRowKeyFinishedOrder, setCurrentRowKeyFinishedOrder] = React.useState('');
+  const [pdfKey, setPdfKey] = React.useState('');
 
   const database = firebase.database().ref('Finished Orders');
   const fetchData = () =>{
@@ -103,7 +104,6 @@ export default function Orders() {
       <Table size="medium" >
         <TableHead>
           <TableRow>
-            <TableCell></TableCell>
             <TableCell><b>Date</b></TableCell>
             <TableCell><b>Name</b></TableCell>
             <TableCell><b>Department</b></TableCell>
@@ -132,6 +132,7 @@ export default function Orders() {
                 setCurrentRowAditionalFinishedOrder(row.aditionalFinishedOrder)
                 setCurrentRowDepartmentFinishedOrder(row.departmentFinishedOrder)
                 setCurrentRowKeyFinishedOrder(row.key)
+                setPdfKey(row.pdfKey);
                                   }}>View</Button>
               </TableCell>
             </TableRow>
@@ -141,13 +142,12 @@ export default function Orders() {
       </Table>
       <br/>
 
-      <Button color='primary' variant="contained"> Accept Orders </Button>
       <br/> <br/>
 
 
       <SimpleDialogViewOrder selectedValueViewOrder={selectedValueViewOrder} openViewOrder={openViewOrder} onClose={handleCloseViewOrder} currentRowNameFinishedOrder={currentRowNameFinishedOrder}
                               currentRowDateFinishedOrder={currentRowDateFinishedOrder} currentRowDepartmentFinishedOrder={currentRowDepartmentFinishedOrder} currentRowProductFinishedOrder={currentRowProductFinishedOrder}
-                              currentRowPriceFinishedOrder={currentRowPriceFinishedOrder} currentRowAditionalFinishedOrder={currentRowAditionalFinishedOrder} currentRowKeyFinishedOrder={currentRowKeyFinishedOrder}/>
+                              currentRowPriceFinishedOrder={currentRowPriceFinishedOrder} currentRowAditionalFinishedOrder={currentRowAditionalFinishedOrder} currentRowKeyFinishedOrder={currentRowKeyFinishedOrder} pdfKey={pdfKey}/>
     </React.Fragment>
 ) : (
 
