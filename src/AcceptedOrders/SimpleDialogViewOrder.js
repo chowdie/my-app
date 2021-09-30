@@ -40,6 +40,8 @@ const useStyles = makeStyles((theme) => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
+
+  paper: { minWidth: "800px", maxWidth: "800px" },
 }));
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -104,7 +106,7 @@ export default function SimpleDialogViewOrder(props) {
 
   const classes = useStyles();
   var { onClose, selectedValueViewOrder, openViewOrder, currentRowNameAcceptedOrder, currentRowDateAcceptedOrder, currentRowPriceAcceptedOrder,
-            currentRowProductAcceptedOrder, currentRowAditionalAcceptedOrder, currentRowDepartmentAcceptedOrder, currentRowKeyAcceptedOrder, pdfKey} = props;
+            currentRowProductAcceptedOrder, currentRowAditionalAcceptedOrder, currentRowDepartmentAcceptedOrder, currentRowKeyAcceptedOrder, pdfKey, currency, urgency} = props;
 
   const uploadPdfFile = async(key) => {
       if(pdfFile == null)
@@ -187,7 +189,9 @@ export default function SimpleDialogViewOrder(props) {
       nameFinishedOrder,
       priceFinishedOrder,
       productFinishedOrder,
-      pdfKey
+      pdfKey,
+      currency,
+      urgency
     })
 
     db.ref('Accepted Orders').child(currentRowKeyAcceptedOrder).remove();
@@ -204,7 +208,7 @@ export default function SimpleDialogViewOrder(props) {
   return (
     <form  >
 
-    <Dialog onClose={handleCloseViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder} >
+    <Dialog onClose={handleCloseViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder} classes={{ paper: classes.paper}} fullWidth={true}>
       <DialogTitle id="simple-dialog-title"><h1>View order</h1></DialogTitle>
       <List>
 
@@ -245,7 +249,7 @@ export default function SimpleDialogViewOrder(props) {
                   </InputLabel>
 
                   <InputLabel shrink id="demo-simple-select-placeholder-label-label">
-                    <h2>{currentRowPriceAcceptedOrder}</h2>
+                    <h2>{currentRowPriceAcceptedOrder + ' ' + currency}</h2>
                   </InputLabel>
 
                 </ListItem>
@@ -310,7 +314,7 @@ export default function SimpleDialogViewOrder(props) {
 
                 <ListItem/> <ListItem/> <ListItem/><ListItem/> <ListItem/> <ListItem/>
 
-                <Button color='primary' variant='contained' type='submit' onClick={handleFinishViewOrder}>Finish Order
+                <Button color='primary' variant='contained' type='submit' onClick={handleFinishViewOrder} style={{'marginLeft':'80%'}}>Finish Order
                 </Button>
 
       </List>

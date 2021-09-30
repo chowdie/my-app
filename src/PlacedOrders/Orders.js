@@ -56,6 +56,8 @@ export default function Orders() {
   const [currentRowPricePlacedOrder, setCurrentRowPricePlacedOrder] = React.useState('');
   const [currentRowAditionalPlacedOrder, setCurrentRowAditionalPlacedOrder] = React.useState('');
   const [currentRowKeyPlacedOrder, setCurrentRowKeyPlacedOrder] = React.useState('');
+  const [currency, setCurrency] = React.useState('')
+  const [urgency, setUrgency] = React.useState('')
 
   const database = firebase.database().ref('Placed Orders');
   const fetchData = () =>{
@@ -110,10 +112,12 @@ export default function Orders() {
       <Table size="medium" >
         <TableHead>
           <TableRow>
+            <TableCell><b></b></TableCell>
             <TableCell><b>Date</b></TableCell>
             <TableCell><b>Name</b></TableCell>
             <TableCell><b>Department</b></TableCell>
             <TableCell><b>Product</b></TableCell>
+
             <TableCell align="right"><b>Estimative Price</b></TableCell>
             <TableCell/>
 
@@ -124,12 +128,15 @@ export default function Orders() {
           {
             data.map((row ) => (
 
-            <TableRow key={row.key}>
+            <TableRow key={row.key} >
+              <TableCell style={{'borderWidth':'1px', 'background':(row.urgency == null ? '#FFFFFF' :( row.urgency == 'HIGH'? '#ff4d4d' :
+                (row.urgency == 'MEDIUM' ? '#ff9900' : '#009900')) )}}></TableCell>
               <TableCell>{row.datePlacedOrder}</TableCell>
               <TableCell>{row.namePlacedOrder}</TableCell>
               <TableCell>{row.departmentPlacedOrder}</TableCell>
               <TableCell>{row.productPlacedOrder}</TableCell>
-              <TableCell align="right">{row.pricePlacedOrder}</TableCell>
+
+              <TableCell align="right">{row.pricePlacedOrder + ' ' + row.currency}</TableCell>
               <TableCell><Button color = 'primary' onClick={() => {
                 handleClickOpenViewOrder();
                 setCurrentRowNamePlacedOrder(row.namePlacedOrder)
@@ -139,6 +146,8 @@ export default function Orders() {
                 setCurrentRowAditionalPlacedOrder(row.aditionalPlacedOrder)
                 setCurrentRowDepartmentPlacedOrder(row.departmentPlacedOrder)
                 setCurrentRowKeyPlacedOrder(row.key)
+                setCurrency(row.currency)
+                setUrgency(row.urgency)
                                   }}>View</Button>
               </TableCell>
             </TableRow>
@@ -156,7 +165,8 @@ export default function Orders() {
       <SimpleDialogNewOrder selectedValueNewOrder={selectedValueNewOrder} open={open} onClose={handleCloseNewOrder} dataReady={dataReady} onDataReadyChange={setDataReady}/>
       <SimpleDialogViewOrder selectedValueViewOrder={selectedValueViewOrder} openViewOrder={openViewOrder} onClose={handleCloseViewOrder} currentRowNamePlacedOrder={currentRowNamePlacedOrder}
                               currentRowDatePlacedOrder={currentRowDatePlacedOrder} currentRowDepartmentPlacedOrder={currentRowDepartmentPlacedOrder} currentRowProductPlacedOrder={currentRowProductPlacedOrder}
-                              currentRowPricePlacedOrder={currentRowPricePlacedOrder} currentRowAditionalPlacedOrder={currentRowAditionalPlacedOrder} currentRowKeyPlacedOrder={currentRowKeyPlacedOrder}/>
+                              currentRowPricePlacedOrder={currentRowPricePlacedOrder} currentRowAditionalPlacedOrder={currentRowAditionalPlacedOrder} currentRowKeyPlacedOrder={currentRowKeyPlacedOrder} currency={currency}
+                              urgency={urgency}/>
     </React.Fragment>
 ) : (
 

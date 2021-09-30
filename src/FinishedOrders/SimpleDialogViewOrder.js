@@ -39,6 +39,8 @@ const useStyles = makeStyles((theme) => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
+
+  paper: { minWidth: "800px", maxWidth: "800px" },
 }));
 
 
@@ -100,11 +102,11 @@ export default function SimpleDialogViewOrder(props) {
 
   const classes = useStyles();
   var { onClose, selectedValueViewOrder, openViewOrder, currentRowNameFinishedOrder, currentRowDateFinishedOrder, currentRowPriceFinishedOrder,
-            currentRowProductFinishedOrder, currentRowAditionalFinishedOrder, currentRowDepartmentFinishedOrder, currentRowKeyFinishedOrder, pdfKey} = props;
+            currentRowProductFinishedOrder, currentRowAditionalFinishedOrder, currentRowDepartmentFinishedOrder, currentRowKeyFinishedOrder, pdfKey, currency, urgency} = props;
 
   const [currentFile, setCurrentFile] = useState('')
   const [pdfFile, setPdfFile] = useState([]);
-  
+
   const [extractingFiles, setExtractingFiles] = React.useState([]);
   var key = currentRowKeyFinishedOrder
 
@@ -134,7 +136,7 @@ export default function SimpleDialogViewOrder(props) {
 
           });
 
-  const handleCloseViewOrder = async () => {
+  const handleSaveViewOrder = async () => {
     onClose(selectedValueViewOrder);
 
     db.ref('Finished Orders').child(currentRowKeyFinishedOrder).update({aditionalFinishedOrder: currentRowAditionalFinishedOrder});
@@ -144,6 +146,36 @@ export default function SimpleDialogViewOrder(props) {
 
   };
 
+  const handleCloseViewOrder = async () => {
+
+    onClose(selectedValueViewOrder);
+    const newOrder = db.ref('Completed Orders');
+    const newOrderFinished = newOrder.push();
+    key = newOrderFinished.getKey();
+    const aditionalFinishedOrder = currentRowAditionalFinishedOrder
+    const dateFinishedOrder = currentRowDateFinishedOrder
+    const departmentFinishedOrder = currentRowDepartmentFinishedOrder
+    const nameFinishedOrder = currentRowNameFinishedOrder
+    const priceFinishedOrder = currentRowPriceFinishedOrder
+    const productFinishedOrder = currentRowProductFinishedOrder
+    newOrderFinished.set({
+      aditionalFinishedOrder,
+      dateFinishedOrder,
+      departmentFinishedOrder,
+      key,
+      nameFinishedOrder,
+      priceFinishedOrder,
+      productFinishedOrder,
+      pdfKey,
+      currency,
+      urgency
+    })
+
+    await db.ref('Finished Orders').child(currentRowKeyFinishedOrder).remove();
+    window.location.reload()
+
+
+  };
   const handleListItemClick = (value) => {
     onClose(value);
   };
@@ -163,7 +195,7 @@ export default function SimpleDialogViewOrder(props) {
   return (
     <form  >
 
-    <Dialog onClose={handleCloseViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder} >
+    <Dialog onClose={handleSaveViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder} classes={{ paper: classes.paper}} fullWidth={true}>
       <DialogTitle id="simple-dialog-title"><h1>View order</h1></DialogTitle>
       <List>
 
@@ -204,10 +236,11 @@ export default function SimpleDialogViewOrder(props) {
                   </InputLabel>
 
                   <InputLabel shrink id="demo-simple-select-placeholder-label-label">
-                    <h2>{currentRowPriceFinishedOrder}</h2>
+                    <h2>{currentRowPriceFinishedOrder + ' ' + currency}</h2>
                   </InputLabel>
 
                 </ListItem>
+
 
                 <ListItem /> <ListItem/> <ListItem/>
 
@@ -269,7 +302,7 @@ export default function SimpleDialogViewOrder(props) {
 
 
                 <ListItem/><ListItem/><ListItem/><ListItem/><ListItem/><ListItem/>
-                <Button color='primary' variant='contained' type='submit' onClick={handleCloseViewOrder}>Finish Order
+                <Button color='primary' variant='contained' type='submit' onClick={handleCloseViewOrder} style={{'marginLeft':'80%'}}>Complete Order
                 </Button>
 
       </List>

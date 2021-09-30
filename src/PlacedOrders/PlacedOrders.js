@@ -146,11 +146,7 @@ export default function PlacedOrders() {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Placed Orders
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+      
         </Toolbar>
       </AppBar>
       <Drawer

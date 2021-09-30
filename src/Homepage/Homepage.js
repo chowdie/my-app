@@ -145,11 +145,7 @@ export default function Homepage() {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Homepage
           </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+          
         </Toolbar>
       </AppBar>
       <Drawer

@@ -40,7 +40,9 @@ const useStyles = makeStyles((theme) => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
+  paper: { minWidth: "800px", maxWidth: "800px" },
 }));
+
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -102,7 +104,7 @@ export default function SimpleDialogViewOrder(props) {
 
   const classes = useStyles();
   var { onClose, selectedValueViewOrder, openViewOrder, currentRowNamePlacedOrder, currentRowDatePlacedOrder, currentRowPricePlacedOrder,
-            currentRowProductPlacedOrder, currentRowAditionalPlacedOrder, currentRowDepartmentPlacedOrder, currentRowKeyPlacedOrder} = props;
+            currentRowProductPlacedOrder, currentRowAditionalPlacedOrder, currentRowDepartmentPlacedOrder, currentRowKeyPlacedOrder, currency, urgency} = props;
 
   const dateAcceptedOrder = currentRowDatePlacedOrder
   const nameAcceptedOrder = currentRowNamePlacedOrder
@@ -165,7 +167,9 @@ const uploadPdfFile = async(key) => {
       nameAcceptedOrder,
       priceAcceptedOrder,
       productAcceptedOrder,
-      pdfKey
+      pdfKey,
+      currency,
+      urgency
     })
 
     db.ref('Placed Orders').child(currentRowKeyPlacedOrder).remove();
@@ -186,11 +190,11 @@ const uploadPdfFile = async(key) => {
   return (
     <form>
 
-    <Dialog onClose={handleCloseViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder} >
+    <Dialog onClose={handleCloseViewOrder} aria-labelledby="simple-dialog-title" open={openViewOrder}  classes={{ paper: classes.paper}} fullWidth={true}>
       <DialogTitle id="simple-dialog-title"><h1>View order</h1></DialogTitle>
       <List>
 
-                <ListItem FormControl className={classes.formControl}>
+                <ListItem FormControl className={classes.formControl} >
                   <InputLabel shrink id="demo-simple-select-placeholder-label-label">
                     <h2>Name:</h2>
                   </InputLabel>
@@ -227,7 +231,7 @@ const uploadPdfFile = async(key) => {
                   </InputLabel>
 
                   <InputLabel shrink id="demo-simple-select-placeholder-label-label">
-                    <h2>{currentRowPricePlacedOrder}</h2>
+                    <h2>{currentRowPricePlacedOrder + ' ' + currency}</h2>
                   </InputLabel>
 
                 </ListItem>
@@ -239,7 +243,7 @@ const uploadPdfFile = async(key) => {
                     <h2>Aditional info:</h2>
                   </InputLabel>
                 </ListItem>
-                <ListItem>
+                <ListItem >
                   <TextField variant='outlined' margin='outlined' multiline name='aditionalPlacedOrder' defaultValue={currentRowAditionalPlacedOrder} onChange={(e) => {currentRowAditionalPlacedOrder = (e.target.value)}}/>
 
                 </ListItem>
@@ -295,7 +299,7 @@ const uploadPdfFile = async(key) => {
 
 
               <ListItem /> <ListItem/> <ListItem/> <ListItem /> <ListItem/> <ListItem/>
-            <Button color='primary' variant='contained' type='submit' onClick={handleAcceptViewOrder}>Accept Order
+            <Button color='primary' variant='contained' type='submit' onClick={handleAcceptViewOrder} style={{'marginLeft':'80%'}}>Accept Order
             </Button>
 
       </List>

@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
   seeMore: {
     marginTop: theme.spacing(3),
   },
+  paper: { minWidth: "800px", maxWidth: "800px" },
 }));
 
 export default function SimpleDialogNewOrder(props) {
@@ -46,7 +47,7 @@ export default function SimpleDialogNewOrder(props) {
 
     onClose(selectedValueNewOrder);
     if(datePlacedOrder != "datePlacedOrder" && namePlacedOrder != "namePlacedOrder" && departmentPlacedOrder != "departmentPlacedOrder" &&
-        productPlacedOrder != "productPlacedOrder" && pricePlacedOrder != "pricePlacedOrder" && pdfFile != null){
+        productPlacedOrder != "productPlacedOrder" && pricePlacedOrder != "pricePlacedOrder" && pdfFile != null && currency != ''){
     const newOrder = db.ref('Placed Orders')
     const newOrderPlaced = newOrder.push();
 
@@ -58,7 +59,9 @@ export default function SimpleDialogNewOrder(props) {
       departmentPlacedOrder,
       productPlacedOrder,
       pricePlacedOrder,
-      aditionalPlacedOrder
+      aditionalPlacedOrder,
+      currency,
+      urgency
     })
 
     onDataReadyChange(false);
@@ -90,13 +93,15 @@ export default function SimpleDialogNewOrder(props) {
   const [productPlacedOrder, setProductPlacedOrder] = useState('productPlacedOrder')
   const [pricePlacedOrder, setPricePlacedOrder] = useState('pricePlacedOrder')
   const [aditionalPlacedOrder, setAditionalPlacedOrder] = useState('')
+  const [currency, setCurrency] = useState('')
+  const [urgency, setUrgency] = useState('')
   const [key, setKey] = useState('key');
   const [pdfFile, setPdfFile] = useState([]);
 
 
   return (
     <form fullWidth={true}>
-    <Dialog onClose={handleCloseNewOrder} aria-labelledby="simple-dialog-title" open={open} >
+    <Dialog onClose={handleCloseNewOrder} aria-labelledby="simple-dialog-title" open={open} classes={{ paper: classes.paper}} fullWidth={true}>
       <DialogTitle id="simple-dialog-title"><h1>Place new order</h1></DialogTitle>
       <List>
 
@@ -157,6 +162,38 @@ export default function SimpleDialogNewOrder(props) {
 
                   <TextField variant='outlined' margin='outlined' name='pricePlacedOrder' onChange={(e) => setPricePlacedOrder(e.target.value)}/>
 
+                  <Select onChange={(e) => setCurrency(e.target.value)}
+                    labelId="demo-simple-select-placeholder-label-label"
+                    id="demo-simple-select-placeholder-label"
+                    name='departmentPlacedOrder'  >
+
+                    <MenuItem value={'RON'}>RON</MenuItem>
+                    <MenuItem value={'EUR'}>EUR</MenuItem>
+                    <MenuItem value={'USD'}>USD</MenuItem>
+
+
+                  </Select>
+
+                </ListItem>
+
+                <ListItem FormControl className={classes.formControl}>
+                  <InputLabel shrink id="demo-simple-select-placeholder-label-label">
+                    <h2>Level of urgency:</h2>
+                  </InputLabel>
+
+
+                  <Select onChange={(e) => setUrgency(e.target.value)}
+                    labelId="demo-simple-select-placeholder-label-label"
+                    id="demo-simple-select-placeholder-label"
+                    name='departmentPlacedOrder'  >
+
+                    <MenuItem value={'LOW'}>LOW</MenuItem>
+                    <MenuItem value={'MEDIUM'}>MEDIUM</MenuItem>
+                    <MenuItem value={'HIGH'}>HIGH</MenuItem>
+
+
+                  </Select>
+
                 </ListItem>
 
                 <ListItem /> <ListItem/> <ListItem/>
@@ -197,7 +234,7 @@ export default function SimpleDialogNewOrder(props) {
 
                 <ListItem/><ListItem/><ListItem/><ListItem/><ListItem/><ListItem/>
 
-                <Button color='primary' variant='contained' type='submit' onClick={handleCloseNewOrder}>Place Order
+                <Button color='primary' variant='contained' type='submit' onClick={handleCloseNewOrder} style={{'marginLeft':'80%'}}>Place Order
                 </Button>
       </List>
     </Dialog>
