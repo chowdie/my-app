@@ -22,6 +22,7 @@ import { mainListItems, secondaryListItems } from './listItems';
 import Chart from './Chart';
 import Deposits from './Deposits';
 import Orders from './Orders';
+import background from './homecar.png'
 
 function Copyright() {
   return (
@@ -41,6 +42,11 @@ const drawerWidth = 240;
 const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
+    backgroundImage:`url(${background})`,
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    height: '100vh'
+
   },
   toolbar: {
     paddingRight: 24, // keep right padding when drawer closed
@@ -145,7 +151,7 @@ export default function Homepage() {
           <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
             Homepage
           </Typography>
-          
+
         </Toolbar>
       </AppBar>
       <Drawer

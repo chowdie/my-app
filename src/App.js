@@ -18,6 +18,7 @@ import Homepage from './Homepage/Homepage';
 import PlacedOrders from './PlacedOrders/PlacedOrders'
 import AcceptedOrders from './AcceptedOrders/AcceptedOrders'
 import FinishedOrders from './FinishedOrders/FinishedOrders'
+import NewOrder from './NewOrder/NewOrder'
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
 
 
@@ -43,58 +44,6 @@ export default function App() {
     setEmailError('');
   };
 
-  const handleLogin = () => {
-    clearErrors();
-    fire
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch((err) => {
-        switch(err.code){
-          case "auth/invalid-email":
-          case "auth/user-disabled":
-          case "auth/user-not-found":
-            setEmailError(err.message)
-            break;
-          case "auth/wrong-password":
-            setPasswordError(err.message);
-            break;
-        }
-      });
-  };
-
-  const handleSignUp = () => {
-    clearErrors();
-    fire
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch((err) => {
-        switch(err.code){
-          case "auth/email-already-in-use":
-          case "auth/invalid-email":
-          case "auth/user-not-found":
-            setEmailError(err.message)
-            break;
-          case "auth/weak-password":
-            setPasswordError(err.message);
-            break;
-        }
-      });
-  };
-
-  const handleLogout = () => {
-    fire.auth().signOut();
-  };
-
-  const authListner = () => {
-    fire.auth().onAuthStateChanged(user => {
-      if(user){ clearInputs();setUser(user); }
-        else { setUser(""); }
-    });
-  };
-
-  useEffect(() => {
-    authListner();
-  }, [] );
 
 
   return (
@@ -120,10 +69,13 @@ export default function App() {
               <Route path="/PlacedOrders"> <PlacedOrders/>  </Route>
               <Route path="/AcceptedOrders"> <AcceptedOrders/> </Route>
               <Route path="/FinishedOrders"> <FinishedOrders/> </Route>
-              <Route path="/"> <Homepage/> </Route>
+              <Route path="/homepage"> <Homepage/> </Route>
+              <Route path="/Login"> <Login/> </Route>
+              <Route path="/"> <NewOrder/> </Route>
 
             </Switch>
     </Router>
+
   //   </div>
 
 

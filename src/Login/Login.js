@@ -13,6 +13,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import fire from '../Firebase/fire'
+import { useHistory } from 'react-router-dom';
 
 
 function Copyright() {
@@ -59,22 +60,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Login = (props) => {
+const Login = () => {
 
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    handleLogin,
-    handleSignUp,
-    hasAccount,
-    setHasAccount,
-    emailError,
-    passwordError
-  } = props;
 
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+
+  const history = useHistory()
   const classes = useStyles();
+
+   const handleLogin = () => {
+     console.log(email);
+     console.log(password);
+     if(email == 'user' && password == 'pass')
+     {
+       history.push('/homepage');
+     }
+
+   }
 
   return (
     <section className='login'>
@@ -87,7 +90,7 @@ const Login = (props) => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Log in
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -96,11 +99,11 @@ const Login = (props) => {
               autoFocus required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Username"
               name="email"
               autoComplete="email"
               autoFocus
-              onchange={(e) => setEmail(e.target.value)}
+              onChange={async (e) => {await setEmail(e.target.value)}}
             />
             <TextField
               variant="outlined"
@@ -112,7 +115,7 @@ const Login = (props) => {
               type="password"
               id="password"
               autoComplete="current-password"
-              onchange={(e) => setPassword(e.target.value)}
+              onChange={async(e) =>await setPassword(e.target.value)}
             />
 
 
@@ -122,21 +125,10 @@ const Login = (props) => {
 
 
               <div className='btnContainer'>
-                {hasAccount ? (
-                  <>
-                  <FormControlLabel
-                    control={<Checkbox value="remember" color="primary" />}
-                    label="Remember me"
-                  />
+                {
 
-                  <Grid item xs>
-                    <Link href="#" variant="body2">
-                      Forgot password?
-                    </Link>
-                  </Grid>
 
                   <Button
-                    type="submit"
                     fullWidth
                     variant="contained"
                     color="primary"
@@ -145,39 +137,13 @@ const Login = (props) => {
                   >
                     Log In
                   </Button>
-                  <p>
-                      Don't have an account ?
-                      <span onClick={() => setHasAccount(!hasAccount)}> Sign up </span>
-                  </p>
 
 
-                  </>
-                ) : (
-                  <>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    onClick={handleSignUp}
-                  >
-                    Sign up
-                  </Button>
-                  <p>
-                      Have an account?
-                      <span color='blue' onClick={() => setHasAccount(!hasAccount)}> Log in </span>
-                  </p>
-                  </>
 
-                )
                 }
               </div>
               </Grid>
             </Grid>
-            <Box mt={5}>
-              <Copyright />
-            </Box>
           </form>
         </div>
       </Grid>

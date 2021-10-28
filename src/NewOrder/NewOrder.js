@@ -4,9 +4,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import LinkUi from '@material-ui/core/Link'
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
+import AppBar from '@material-ui/core/AppBar';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Title from './Title';
+import Title from '../PlacedOrders/Title';
 import Checkbox from '@material-ui/core/Checkbox'
 import Button from '@material-ui/core/Button'
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -23,21 +24,119 @@ import Fab from '@material-ui/core/Fab'
 import AddIcon from '@material-ui/icons/Add'
 import TextField from '@material-ui/core/TextField'
 import Database from '../Database/Database'
-import {dataReady, setDataReady} from './Orders.js'
+import {dataReady, setDataReady} from '../PlacedOrders/Orders.js'
+import Toolbar from '@material-ui/core/Toolbar';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import clsx from 'clsx';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import MenuIcon from '@material-ui/icons/Menu';
+import Drawer from '@material-ui/core/Drawer';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import Divider from '@material-ui/core/Divider';
+import Container from '@material-ui/core/Container';
+import { mainListItems, secondaryListItems } from './listItems';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Login from '../Login/Login'
+import { useHistory } from 'react-router-dom';
 
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme) => ({
   seeMore: {
-    marginTop: theme.spacing(3),
+    marginTop: theme.spacing(2),
   },
   paper: { minWidth: "800px", maxWidth: "800px" },
+  toolbar: {
+    paddingRight: 24, // keep right padding when drawer closed
+  },
+  toolbarIcon: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '0 8px',
+    ...theme.mixins.toolbar,
+  },
+  appBar: {
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  appBarShift: {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  menuButton: {
+    marginRight: 6,
+  },
+  menuButtonHidden: {
+    display: 'none',
+  },
+  title: {
+    flexGrow: 1,
+  },
+  drawerPaper: {
+    position: 'relative',
+    whiteSpace: 'nowrap',
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerPaperClose: {
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    width: theme.spacing(7),
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9),
+    },
+  },
+  appBarSpacer: theme.mixins.toolbar,
+  content: {
+    flexGrow: 1,
+    height: '100vh',
+    overflow: 'auto',
+  },
+  container: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
+  paper: {
+    padding: theme.spacing(2),
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+  },
+  fixedHeight: {
+    height: 240,
+  },
 }));
 
 export default function SimpleDialogNewOrder(props) {
 
   const db = firebase.database();
   const classes = useStyles();
+  const history = useHistory();
   const { onClose, selectedValueNewOrder, open, dataReady, onDataReadyChange } = props;
+
+  const [openDrawer, setOpenDrawer] = React.useState(false);
+  const handleDrawerOpen = () => {
+    setOpenDrawer(true);
+  };
+  const handleDrawerClose = () => {
+    setOpenDrawer(false);
+  };
 
   const storage = firebase.storage();
 
@@ -49,7 +148,7 @@ export default function SimpleDialogNewOrder(props) {
   const handleCloseNewOrder = async () => {
 
 
-    onClose(selectedValueNewOrder);
+    //onClose(selectedValueNewOrder);
     if(datePlacedOrder != "datePlacedOrder" && namePlacedOrder != "namePlacedOrder" && departmentPlacedOrder != "departmentPlacedOrder" &&
         productPlacedOrder != "productPlacedOrder" && pricePlacedOrder != "pricePlacedOrder" && currency != ''){
     const newOrder = db.ref('Placed Orders')
@@ -68,7 +167,7 @@ export default function SimpleDialogNewOrder(props) {
       urgency
     })
 
-    onDataReadyChange(false);
+
     await uploadPdfFile(newOrderPlaced.key);
     await firebase.database().ref('Completed Orders').on('value', async snapshot => {
        await snapshot.forEach(async (childSub) =>{
@@ -127,6 +226,10 @@ export default function SimpleDialogNewOrder(props) {
     await Promise.all(promises).then(tasks => {window.location.reload(); onDataReadyChange(true)});
   }
 
+  const requestLogin = () => {
+
+      history.push('/login')
+  }
 
   const [datePlacedOrder, setDatePlacedOrder] = useState('datePlacedOrder')
   const [namePlacedOrder, setNamePlacedOrder] = useState('namePlacedOrder')
@@ -141,9 +244,33 @@ export default function SimpleDialogNewOrder(props) {
 
 
   return (
+    <div>
+    <CssBaseline />
+    <AppBar position="absolute" className={clsx(classes.appBar, openDrawer && classes.appBarShift)}>
+      <Toolbar className={classes.toolbar}>
+
+        <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+          Place order
+        </Typography>
+        <IconButton
+          edge="start"
+          color="inherit"
+          aria-label="open drawer"
+          className={clsx(classes.menuButton, openDrawer && classes.menuButtonHidden)}
+        >
+          <Button variant='text' color='inherit' onClick={requestLogin}> Login </Button>
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+
+    <main className={classes.content}>
+    <Container maxWidth="lg" className={classes.container}>
+    <Grid container spacing={3}>
+    <Grid item xs={12}>
+    <Paper className={classes.paper}>
     <form fullWidth={true}>
-    <Dialog onClose={handleCloseNewOrder} aria-labelledby="simple-dialog-title" open={open} classes={{ paper: classes.paper}} fullWidth={true}>
-      <DialogTitle id="simple-dialog-title"><h1>Place new order</h1></DialogTitle>
+
+      <DialogTitle id="simple-dialog-title"><h1>Order</h1></DialogTitle>
       <List>
 
                 <ListItem FormControl className={classes.formControl}>
@@ -151,7 +278,7 @@ export default function SimpleDialogNewOrder(props) {
                     <h2>Name:</h2>
                   </InputLabel>
 
-                  <TextField variant='outlined' margin='outlined' name='namePlacedOrder' onChange={(e) => {
+                  <TextField variant='outlined' required margin='outlined' name='namePlacedOrder' onChange={(e) => {
                     setNamePlacedOrder(e.target.value)
                     const monthName = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
@@ -164,10 +291,11 @@ export default function SimpleDialogNewOrder(props) {
 
 
                 <ListItem FormControl className={classes.formControl}>
-                  <InputLabel shrink id="demo-simple-select-placeholder-label-label">
+                  <InputLabel shrink  id="demo-simple-select-placeholder-label-label">
                     <h2>Departament</h2>
                   </InputLabel>
                   <Select onChange={(e) => setDepartmentPlacedOrder(e.target.value)}
+                    required
                     labelId="demo-simple-select-placeholder-label-label"
                     id="demo-simple-select-placeholder-label"
                     name='departmentPlacedOrder'  >
@@ -191,22 +319,23 @@ export default function SimpleDialogNewOrder(props) {
                   <InputLabel shrink id="demo-simple-select-placeholder-label-label">
                     <h2>Product name:</h2>
                   </InputLabel>
-                  <TextField variant='outlined' margin='outlined' name='productPlacedOrder' onChange={(e) => setProductPlacedOrder(e.target.value)}/>
+                  <TextField variant='outlined' required margin='outlined' name='productPlacedOrder' onChange={(e) => setProductPlacedOrder(e.target.value)}/>
 
                 </ListItem>
 
 
                 <ListItem FormControl className={classes.formControl}>
-                  <InputLabel shrink id="demo-simple-select-placeholder-label-label">
+                  <InputLabel shrink required id="demo-simple-select-placeholder-label-label">
                     <h2>Estimative price:</h2>
                   </InputLabel>
 
-                  <TextField variant='outlined' margin='outlined' name='pricePlacedOrder' onChange={(e) => setPricePlacedOrder(e.target.value)}/>
+                  <TextField required variant='outlined' margin='outlined' name='pricePlacedOrder' onChange={(e) => setPricePlacedOrder(e.target.value)}/>
 
                   <Select onChange={(e) => setCurrency(e.target.value)}
                     labelId="demo-simple-select-placeholder-label-label"
                     id="demo-simple-select-placeholder-label"
-                    name='departmentPlacedOrder'  >
+                    name='departmentPlacedOrder'
+                    required >
 
                     <MenuItem value={'RON'}>RON</MenuItem>
                     <MenuItem value={'EUR'}>EUR</MenuItem>
@@ -218,7 +347,7 @@ export default function SimpleDialogNewOrder(props) {
                 </ListItem>
 
                 <ListItem FormControl className={classes.formControl}>
-                  <InputLabel shrink id="demo-simple-select-placeholder-label-label">
+                  <InputLabel required shrink id="demo-simple-select-placeholder-label-label">
                     <h2>Level of urgency:</h2>
                   </InputLabel>
 
@@ -226,7 +355,8 @@ export default function SimpleDialogNewOrder(props) {
                   <Select onChange={(e) => setUrgency(e.target.value)}
                     labelId="demo-simple-select-placeholder-label-label"
                     id="demo-simple-select-placeholder-label"
-                    name='departmentPlacedOrder'  >
+                    name='departmentPlacedOrder'
+                    required >
 
                     <MenuItem value={'LOW'}>LOW</MenuItem>
                     <MenuItem value={'MEDIUM'}>MEDIUM</MenuItem>
@@ -278,7 +408,12 @@ export default function SimpleDialogNewOrder(props) {
                 <Button color='primary' variant='contained' type='submit' onClick={handleCloseNewOrder} style={{'marginLeft':'80%'}}>Place Order
                 </Button>
       </List>
-    </Dialog>
     </form>
+    </Paper>
+    </Grid>
+    </Grid>
+    </Container>
+    </main>
+    </div>
   );
 }
